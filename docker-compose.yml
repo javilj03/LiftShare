@@ -1,0 +1,53 @@
+version: "3.8"
+services:
+  mongo:
+    image: mongo:5.0
+    container_name: mongo
+    environment:
+        - MONGO_INITDB_ROOT_USERNAME=admin
+        - MONGO_INITDB_ROOT_PASSWORD=pass
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./database/db:/data/db
+      - ./database/dev.archive:/Databases/dev.archive
+      - ./database/production:/Databases/production
+  mongo-express:
+    image: mongo-express
+    container_name: mexpress
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=pass
+      - ME_CONFIG_MONGODB_URL=mongodb://admin:pass@mongo:27017/?authSource=admin
+      - ME_CONFIG_BASICAUTH_USERNAME=mexpress
+      - ME_CONFIG_BASICAUTH_PASSWORD=mexpress
+    links:
+      - mongo
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+
+#     {
+#     _id: 1,
+#     name: 'Javier',
+#     lastName: 'Lama',
+#     birth_date: '27/03/2003',
+#     weight: 70,
+#     height: 172,
+#     username: 'Lamadindong',
+#     email: 'javijm03@gmail.com',
+#     visibility: true,
+#     password: '1234',
+#     post: [{
+#         post_id: 12
+#     },],
+#     routines: {
+#         routines_id: 1
+#     },
+#     friend_request: {
+#         friend_id: 2,
+#         name: 'Juan',
+#         isFriend: true
+#     }
+# }
