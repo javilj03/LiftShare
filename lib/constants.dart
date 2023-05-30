@@ -1,4 +1,4 @@
-const CONNECTION = 'mongodb://admin:pass@172.21.176.1:27017/liftShare/?authSource=admin';
+const CONNECTION = 'mongodb://admin:pass@172.27.240.1:27017/liftShare/?authSource=admin';
 const USERCOLLECTION = 'user';
 const ROUTINECOLLECTION = 'routine';
 const DAYROUTINE = 'day_routine';

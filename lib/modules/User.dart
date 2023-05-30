@@ -13,7 +13,7 @@ class User {
   final String email;
   final bool visibility;
   final String password;
-  final List<String> routines;
+  final List<ObjectId>? routines;
 
   User({
     required this.id,
@@ -26,7 +26,7 @@ class User {
     required this.email,
     required this.visibility,
     required this.password,
-    required this.routines,
+    this.routines,
   });
 
 

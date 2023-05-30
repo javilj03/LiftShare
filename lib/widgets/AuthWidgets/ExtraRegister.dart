@@ -80,7 +80,6 @@ class ExtraRegister extends StatelessWidget {
       email: emailController.text,
       visibility: true,
       password: passwordController.text,
-      routines: ['64468e7b3ae8969312eb48fe'],
     );
     _createUser(u);
   }

@@ -7,9 +7,11 @@ import 'package:mongo_dart/mongo_dart.dart' as Mongo;
 import '../../constants.dart';
 import '../../modules/DayRoutine.dart';
 import '../../providers/DayRoutineProvider.dart';
+import '../../providers/UserProvider.dart';
 
 class CreateRoutine extends StatefulWidget {
   const CreateRoutine({super.key});
+  CreateRoutine.forEdit(Routine routine);
 
   @override
   State<CreateRoutine> createState() => _CreateRoutineState();
@@ -80,7 +82,7 @@ class _CreateRoutineState extends State<CreateRoutine> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: Color(BLUE),
+        backgroundColor: Color(ORANGE),
         onPressed: () {
           saveRoutine();
         },
@@ -173,12 +175,37 @@ class _CreateRoutineState extends State<CreateRoutine> {
                     IconButton(
                         icon: Icon(Icons.edit),
                         onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (ctx) => CreateDayRoutine(
-                                      day: changeName(day),
-                                    )),
-                          );
+                          final dayRoutineProvider =
+                              Provider.of<DayRoutineProvider>(context,
+                                  listen: false);
+                          List<DayRoutine> dayRoutines =
+                              dayRoutineProvider.dayRoutines;
+                          if (dayRoutines.isEmpty) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (ctx) =>
+                                    CreateDayRoutine.fromName(changeName(day)),
+                              ),
+                            );
+                          } else {
+                            dayRoutines.forEach((e) {
+                              if (e.day_of_week == changeName(day)) {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (ctx) =>
+                                        CreateDayRoutine.fromDayRoutine(e),
+                                  ),
+                                );
+                              } else {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (ctx) => CreateDayRoutine.fromName(
+                                        changeName(day)),
+                                  ),
+                                );
+                              }
+                            });
+                          }
                         })
                   ],
                 ),
@@ -195,7 +222,7 @@ class _CreateRoutineState extends State<CreateRoutine> {
     List<DayRoutine> dayRoutines = dayRoutineProvider.dayRoutines;
     print(dayRoutines.toList());
     List<Mongo.ObjectId> IdList = [];
-    for (var e in dayRoutines){
+    for (var e in dayRoutines) {
       IdList.add(e.id);
       await MongoDb.CreateDayRoutine(e);
     }
@@ -207,7 +234,9 @@ class _CreateRoutineState extends State<CreateRoutine> {
       visibility: true,
       days: IdList,
     );
-    await MongoDb.insertRoutine(routine);
+    final userIdProvider = Provider.of<UserProvider>(context, listen: false);
+    Mongo.ObjectId userId = userIdProvider.getUserProvider;
+    await MongoDb.insertRoutine(routine, userId);
     Navigator.of(context).pop();
   }
 }

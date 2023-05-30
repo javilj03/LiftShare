@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import '../Profile.dart';
 class Header extends StatelessWidget implements PreferredSizeWidget {
   const Header({Key? key}) : super(key: key);
 
@@ -8,13 +8,9 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       title: Text('Lift Share'),
       backgroundColor: Color(0xFFFCA311),
+      elevation: 0,
       actions: [
-        IconButton(
-          onPressed: () {
-            Navigator.pushNamed(context, '/user');
-          },
-          icon: Icon(Icons.account_circle, size: 40),
-        ),
+        
       ],
     );
   }

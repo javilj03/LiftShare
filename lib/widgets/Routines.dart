@@ -41,7 +41,7 @@ class Routines extends StatelessWidget {
                   Container(
                     height: 100,
                     child: RoutineList(
-                      userId: Mongo.ObjectId.parse(''),
+                      userId: null,
                     ),
                   ),
                 ],

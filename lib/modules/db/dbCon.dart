@@ -65,34 +65,46 @@ class MongoDb {
     await collectionUser.remove(where.id(user.id));
   }
 
-  static Future<List<Routine>> getRoutinesForUser(ObjectId userId) async {
-    if (userId.toString().length < 12) {
+  static Future<List<Routine>> getRoutinesForUser(ObjectId? userId) async {
+    if (userId == null) {
       final routines = getRoutines();
       return routines;
     } else {
       try {
-        final res = await db
-            .collection(USERCOLLECTION)
-            .findOne({'_id': userId});
+        final res =
+            await db.collection(USERCOLLECTION).findOne({'_id': userId});
 
-        final routineIds = res['routines'];
+        // Añadir new
+        final routineIds = res['routines'].map((id) => ObjectId.parse(id)).toList();
 
-        final res_routines = await db
+        final resRoutines = await db
             .collection(ROUTINECOLLECTION)
             .find(where.oneFrom('_id', routineIds))
             .toList();
+        print((resRoutines));
 
         final routines = <Routine>[]; // inicializamos la lista vacía
 
-        for (final e in res_routines) {
+        for (final e in resRoutines) {
+          final routine;
           // iteramos los resultados
-          final routine = Routine(
-            id: e['_id'],
-            name: e['name'],
-            desc: e['desc'],
-            days: e['days_of_week'],
-            visibility: e['visibility'],
-          );
+          if (e['days_of_week'] != null) {
+            routine = Routine(
+              id: e['_id'],
+              name: e['name'],
+              desc: e['desc'],
+              days: e['days_of_week'],
+              visibility: e['visibility'],
+            );
+          } else {
+            routine = Routine(
+              id: e['_id'],
+              name: e['name'],
+              desc: e['desc'],
+              visibility: e['visibility'],
+            );
+          }
+
           routines.add(routine); // agregamos la rutina a la lista
         }
 
@@ -100,6 +112,7 @@ class MongoDb {
       } catch (e) {
         print('ERROR DE PETICION getRoutinesForUser');
         print(e);
+
         return Future.value([]);
       }
     }
@@ -108,7 +121,6 @@ class MongoDb {
   static Future<List<Routine>> getRoutines() async {
     try {
       final res = await db.collection(ROUTINECOLLECTION).find().toList();
-      print(res.toString());
       final routines = <Routine>[]; // inicializamos la lista vacía
       for (final e in res) {
         // iteramos los resultados
@@ -130,17 +142,13 @@ class MongoDb {
     }
   }
 
-  static insertRoutine(Routine routine) async {
+  static insertRoutine(Routine routine, ObjectId userId) async {
     await db.collection(ROUTINECOLLECTION).insertAll([routine.toMap()]);
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String userId = prefs.getString('userId') ?? '';
 
     await db.collection(USERCOLLECTION).update(
           where.eq('_id', userId),
           modify.push('routines', routine.id),
         );
-
     print('añadido con exito');
   }
 

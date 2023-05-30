@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'RoutineView.dart';
+
 class RoutineCard extends StatelessWidget {
   final routine;
 
@@ -9,8 +11,9 @@ class RoutineCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        var snackBar = SnackBar(content: Text('pulsado ${routine.name}'));
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (ctx) => RoutineView(),
+        ));
       },
       child: Card(
         margin: EdgeInsets.all(10),

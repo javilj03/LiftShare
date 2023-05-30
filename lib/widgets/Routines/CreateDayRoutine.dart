@@ -7,8 +7,10 @@ import '../../modules/Exercise.dart';
 import '../../providers/DayRoutineProvider.dart';
 
 class CreateDayRoutine extends StatefulWidget {
-  final String day;
-  const CreateDayRoutine({required this.day});
+  final String? day;
+  final DayRoutine? dayRoutine;
+  CreateDayRoutine.fromDayRoutine(this.dayRoutine) : day = null;
+  CreateDayRoutine.fromName(this.day) : dayRoutine = null;
 
   @override
   State<CreateDayRoutine> createState() => _CreateDayRoutineState();
@@ -20,11 +22,38 @@ class _CreateDayRoutineState extends State<CreateDayRoutine> {
   List<TextEditingController> _repsController = [];
   List<TextEditingController> _seriesController = [];
 
+  void fillControllers() {
+    if (widget.day == null) {
+      widget.dayRoutine!.exercises.forEach((e) {
+        final nameController = TextEditingController(text: e['name']);
+        final seriesController =
+            TextEditingController(text: e['series'].toString());
+        final repsController =
+            TextEditingController(text: e['reps'].toString());
+
+        setState(() {
+          _nameController.add(nameController);
+          _seriesController.add(seriesController);
+          _repsController.add(repsController);
+          _exercises.add('Exercise ${_exercises.length + 1}');
+        });
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fillControllers();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.day),
+        title: Text(widget.dayRoutine != null
+            ? widget.dayRoutine!.day_of_week + ' como objeto'
+            : widget.day!),
         backgroundColor: Color(ORANGE),
       ),
       body: Column(
@@ -34,7 +63,9 @@ class _CreateDayRoutineState extends State<CreateDayRoutine> {
             color: Color(BLUE),
             padding: EdgeInsets.all(16),
             child: Text(
-              'Editar ${widget.day}',
+              widget.dayRoutine != null
+                  ? 'Editar ' + widget.dayRoutine!.day_of_week
+                  : 'Editar ' + widget.day!,
               style: TextStyle(fontSize: 24, color: Colors.white),
             ),
           ),
@@ -48,7 +79,7 @@ class _CreateDayRoutineState extends State<CreateDayRoutine> {
                   style: TextStyle(fontSize: 18),
                 ),
                 IconButton(
-                  icon: Icon(Icons.add),
+                  icon: Icon(Icons.add_circle),
                   onPressed: () {
                     _addExercise();
                   },
@@ -69,43 +100,58 @@ class _CreateDayRoutineState extends State<CreateDayRoutine> {
                 return Container(
                   height: 75,
                   child: Card(
-                    child: Row(children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _nameController[index],
-                          decoration:
-                              InputDecoration(labelText: 'Nombre Ejercicio'),
-                          onChanged: (value) {
-                            setState(() {});
-                          },
+                    child: Stack(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                controller: _nameController[index],
+                                decoration: InputDecoration(
+                                    labelText: 'Nombre Ejercicio'),
+                                onChanged: (value) {
+                                  setState(() {});
+                                },
+                              ),
+                            ),
+                            SizedBox(width: 16),
+                            SizedBox(
+                              width: 60,
+                              child: TextFormField(
+                                controller: _repsController[index],
+                                decoration: InputDecoration(labelText: 'Reps'),
+                                keyboardType: TextInputType.number,
+                                onChanged: (value) {
+                                  setState(() {});
+                                },
+                              ),
+                            ),
+                            SizedBox(width: 16),
+                            SizedBox(
+                              width: 60,
+                              child: TextFormField(
+                                controller: _seriesController[index],
+                                decoration:
+                                    InputDecoration(labelText: 'Series'),
+                                keyboardType: TextInputType.numberWithOptions(
+                                    decimal: true),
+                              ),
+                            ),
+                            SizedBox(width: 16),
+                            SizedBox(
+                              width: 40,
+                              child: IconButton(
+                            icon: Icon(Icons.remove_circle),
+                            onPressed: () {
+                              _removeExercise(index);
+                            },
+                          ),
+                            ),
+                          ],
                         ),
-                      ),
-                      SizedBox(width: 16),
-                      SizedBox(
-                        width: 80,
-                        child: TextFormField(
-                          controller: _repsController[index],
-                          decoration: InputDecoration(labelText: 'Reps'),
-                          keyboardType: TextInputType.number,
-                          onChanged: (value) {
-                            setState(() {});
-                          },
-                        ),
-                      ),
-                      SizedBox(width: 16),
-                      SizedBox(
-                        width: 80,
-                        child: TextFormField(
-                          controller: _seriesController[index],
-                          decoration: InputDecoration(labelText: 'Series'),
-                          keyboardType:
-                              TextInputType.numberWithOptions(decimal: true),
-                          onChanged: (value) {
-                            setState(() {});
-                          },
-                        ),
-                      ),
-                    ]),
+                        
+                      ],
+                    ),
                   ),
                 );
               },
@@ -147,7 +193,8 @@ class _CreateDayRoutineState extends State<CreateDayRoutine> {
     // Crea un nuevo objeto Day_routine con los ejercicios creados por el usuario
     DayRoutine newDayRoutine = DayRoutine(
       exercises: listToDB,
-      day_of_week: widget.day,
+      day_of_week:
+          widget.day == null ? widget.dayRoutine!.day_of_week : widget.day!,
     );
     // Obtiene la instancia de DayRoutinesProvider y agrega el nuevo objeto Day_routine a la lista de rutinas diarias
     Provider.of<DayRoutineProvider>(context, listen: false)
@@ -159,4 +206,12 @@ class _CreateDayRoutineState extends State<CreateDayRoutine> {
       _exercises.add('Exercise ${_exercises.length + 1}');
     });
   }
+  void _removeExercise(int index) {
+  setState(() {
+    _nameController.removeAt(index);
+    _repsController.removeAt(index);
+    _seriesController.removeAt(index);
+    _exercises.removeAt(index);
+  });
+}
 }

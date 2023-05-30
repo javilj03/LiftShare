@@ -5,7 +5,7 @@ import '../../modules/Routine.dart';
 import 'package:mongo_dart/mongo_dart.dart' as Mongo;
 
 class RoutineList extends StatelessWidget {
-  final Mongo.ObjectId userId;
+  final Mongo.ObjectId? userId;
 
   RoutineList({required this.userId});
 
