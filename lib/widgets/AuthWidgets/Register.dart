@@ -1,10 +1,6 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import './ExtraRegister.dart';
-import 'package:mongo_dart/mongo_dart.dart' as Mongo;
-import '../../modules/db/dbCon.dart';
-import '../../modules/User.dart';
+
 
 class Register extends StatelessWidget {
   final nameController = TextEditingController();
@@ -78,11 +74,14 @@ class Register extends StatelessWidget {
               ),
               ElevatedButton(
                 child: Text('Continuar'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFFFCA311), // Color FCA311
+                ),
                 onPressed: () {
-                  Navigator.push(
-                    context,
+                  Navigator.of(context).pop();
+                  Navigator.of(context).push(
                     MaterialPageRoute(
-                        builder: (context) => ExtraRegister(
+                        builder: (ctx) => ExtraRegister(
                               emailController: emailController,
                               lastNameController: lastNameController,
                               nameController: nameController,

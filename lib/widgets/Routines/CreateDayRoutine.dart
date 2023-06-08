@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lift_share/constants.dart';
+import '../../constants.dart';
 import 'package:provider/provider.dart';
-import '../../modules/db/dbCon.dart';
 import '../../modules/DayRoutine.dart';
 import '../../modules/Exercise.dart';
 import '../../providers/DayRoutineProvider.dart';
@@ -141,15 +140,14 @@ class _CreateDayRoutineState extends State<CreateDayRoutine> {
                             SizedBox(
                               width: 40,
                               child: IconButton(
-                            icon: Icon(Icons.remove_circle),
-                            onPressed: () {
-                              _removeExercise(index);
-                            },
-                          ),
+                                icon: Icon(Icons.remove_circle),
+                                onPressed: () {
+                                  _removeExercise(index);
+                                },
+                              ),
                             ),
                           ],
                         ),
-                        
                       ],
                     ),
                   ),
@@ -171,13 +169,20 @@ class _CreateDayRoutineState extends State<CreateDayRoutine> {
   }
 
   void saveDay() async {
+    bool error = false;
     List<Exercise> _exercisesList = [];
     for (var index = 0; index < _nameController.length; index++) {
-      Exercise e = Exercise(
-          name: _nameController[index].text,
-          reps: int.parse(_repsController[index].text),
-          series: int.parse(_seriesController[index].text));
-      _exercisesList.add(e);
+      if (_nameController[index].text == '' ||
+          _repsController[index].text == '' ||
+          _seriesController[index].text == '') {
+        error = true;
+      } else {
+        Exercise e = Exercise(
+            name: _nameController[index].text,
+            reps: int.parse(_repsController[index].text),
+            series: int.parse(_seriesController[index].text));
+        _exercisesList.add(e);
+      }
     }
 
     List<Map<String, dynamic>> listToDB = [];
@@ -188,8 +193,6 @@ class _CreateDayRoutineState extends State<CreateDayRoutine> {
         'reps': _exercisesList[index].reps,
       });
     }
-    print(listToDB.toList());
-
     // Crea un nuevo objeto Day_routine con los ejercicios creados por el usuario
     DayRoutine newDayRoutine = DayRoutine(
       exercises: listToDB,
@@ -197,8 +200,31 @@ class _CreateDayRoutineState extends State<CreateDayRoutine> {
           widget.day == null ? widget.dayRoutine!.day_of_week : widget.day!,
     );
     // Obtiene la instancia de DayRoutinesProvider y agrega el nuevo objeto Day_routine a la lista de rutinas diarias
-    Provider.of<DayRoutineProvider>(context, listen: false)
-        .addDayRoutine(newDayRoutine);
+    final dayRoutineProvider =
+        Provider.of<DayRoutineProvider>(context, listen: false);
+    List<DayRoutine> dayRoutines = dayRoutineProvider.dayRoutines;
+    bool dayFound = false;
+    for (var e in dayRoutines) {
+      if (e.day_of_week == newDayRoutine.day_of_week) {
+        dayRoutineProvider.removeDayRoutine(e.day_of_week);
+        dayFound = true;
+        break; // Salir del bucle for después de encontrar el día correspondiente
+      }
+    }
+
+    if (!dayFound) {
+      Provider.of<DayRoutineProvider>(context, listen: false)
+          .addDayRoutine(newDayRoutine);
+    }
+    if (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content:
+              Text('No se han añadido los ejercicios con algun campo vacio'),
+          duration: Duration(seconds: 4), // Duración del SnackBar
+        ),
+      );
+    }
   }
 
   void _addExercise() {
@@ -206,12 +232,13 @@ class _CreateDayRoutineState extends State<CreateDayRoutine> {
       _exercises.add('Exercise ${_exercises.length + 1}');
     });
   }
+
   void _removeExercise(int index) {
-  setState(() {
-    _nameController.removeAt(index);
-    _repsController.removeAt(index);
-    _seriesController.removeAt(index);
-    _exercises.removeAt(index);
-  });
-}
+    setState(() {
+      _nameController.removeAt(index);
+      _repsController.removeAt(index);
+      _seriesController.removeAt(index);
+      _exercises.removeAt(index);
+    });
+  }
 }

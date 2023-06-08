@@ -1,7 +1,13 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:lift_share/constants.dart';
+import '../constants.dart';
+import 'package:provider/provider.dart';
 import './Profile/ProfileRoutine.dart';
+import '../modules/User.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../providers/UserProvider.dart';
+import 'Profile/FriendsList.dart';
+import 'Profile/ProfilePosts.dart';
 
 class Profile extends StatefulWidget {
   const Profile({Key? key});
@@ -18,167 +24,188 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-
     tabController = TabController(length: 2, initialIndex: 0, vsync: this);
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      controller: scrollController,
-      child: SizedBox(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height - 140,
-        child: Column(
-          children: [
-            Container(
-              color: Color(ORANGE),
-              padding: EdgeInsets.all(8),
-              child: Row(
+    return FutureBuilder<User?>(
+      future: getUserData(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator(); // Mostrar un indicador de carga mientras se espera la respuesta de getUser()
+        } else if (snapshot.hasError) {
+          return Text(
+              'Error: ${snapshot.error}'); // Manejar errores de obtener la información del usuario
+        } else {
+          final user = snapshot.data;
+          return SingleChildScrollView(
+            controller: scrollController,
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height - 140,
+              child: Column(
                 children: [
-                  Expanded(
-                    flex: 1,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  Container(
+                    color: Color(ORANGE),
+                    padding: EdgeInsets.all(8),
+                    child: Row(
                       children: [
-                        const CircleAvatar(
-                            radius: 45,
-                            backgroundImage: NetworkImage(
-                                "https://images.unsplash.com/photo-1564564295391-7f24f26f568b")),
-                        const SizedBox(height: 10),
-                        Text("Junaid Khan")
+                        Expanded(
+                          flex: 1,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const CircleAvatar(
+                                radius: 45,
+                                backgroundImage: NetworkImage(
+                                    "https://images.unsplash.com/photo-1564564295391-7f24f26f568b"),
+                              ),
+                              const SizedBox(height: 10),
+                              Text(user!.username),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Color.fromARGB(255, 208, 134, 14),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Color(
+                                          BLACK), // Utilizamos Colors.black para el color negro
+                                      offset: Offset(0, 2),
+                                      blurRadius: 2,
+                                      spreadRadius: -1,
+                                    ),
+                                  ],
+                                ),
+                                padding: EdgeInsets.all(8),
+                                child: Column(
+                                  children: [
+                                    Text(user.posts != null ? user.posts!.length.toString() : '0'),
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      "Posts",
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () => {
+                                  Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => FriendList(user: user,)))
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Color.fromARGB(255, 208, 134, 14),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Color(
+                                            BLACK), // Utilizamos Colors.black para el color negro
+                                        offset: Offset(0, 2),
+                                        blurRadius: 2,
+                                        spreadRadius: -1,
+                                      ),
+                                    ],
+                                  ),
+                                  padding: EdgeInsets.all(8),
+                                  child: Column(
+                                    children: [
+                                      Text(user.friends != null ? user.friends!.length.toString() : '0'),
+                                      const SizedBox(height: 5),
+                                      Text("Friends"),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    color: Color(ORANGE),
+                    padding: EdgeInsets.all(8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 9,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(user.email),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    color: Color(ORANGE),
+                    child: TabBar(
+                      indicatorColor: Colors.white,
+                      indicatorWeight: 0.8,
+                      indicatorPadding: EdgeInsets.zero,
+                      padding: EdgeInsets.zero,
+                      controller: tabController,
+                      tabs: const [
+                        Tab(icon: Icon(Icons.camera_alt)),
+                        Tab(icon: Icon(Icons.calendar_month)),
                       ],
                     ),
                   ),
                   Expanded(
-                    flex: 2,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    child: TabBarView(
+                      controller: tabController,
                       children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Color.fromARGB(255, 208, 134, 14),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Color(
-                                    BLACK), // Utilizamos Colors.black para el color negro
-                                offset: Offset(0, 2),
-                                blurRadius: 2,
-                                spreadRadius: -1,
-                              ),
-                            ],
-                          ),
-                          padding: EdgeInsets.all(8),
-                          child: Column(
-                            children: [
-                              Text("16"),
-                              const SizedBox(height: 5),
-                              Text(
-                                "Posts",
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Color.fromARGB(255, 208, 134, 14),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Color(
-                                    BLACK), // Utilizamos Colors.black para el color negro
-                                offset: Offset(0, 2),
-                                blurRadius: 2,
-                                spreadRadius: -1,
-                              ),
-                            ],
-                          ),
-                          padding: EdgeInsets.all(8),
-                          child: Column(
-                            children: [
-                              Text("158"),
-                              const SizedBox(height: 5),
-                              Text("Followers")
-                            ],
-                          ),
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Color.fromARGB(255, 208, 134, 14),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Color(
-                                    BLACK), // Utilizamos Colors.black para el color negro
-                                offset: Offset(0, 2),
-                                blurRadius: 2,
-                                spreadRadius: -1,
-                              ),
-                            ],
-                          ),
-                          padding: EdgeInsets.all(8),
-                          child: Column(
-                            children: [
-                              Text("1,425"),
-                              const SizedBox(height: 5),
-                              Text("Following")
-                            ],
-                          ),
-                        )
+                        _postsDisplay(scrollController),
+                        _routineDisplay(scrollController),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
-            Container(
-                color: Color(ORANGE),
-                padding: EdgeInsets.all(8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text("Story Highlights"),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text("Keep your favourite stories on your profile")
-                        ],
-                      ),
-                      flex: 9,
-                    ),
-                  ],
-                )),
-            Container(
-              color: Color(ORANGE),
-              child: TabBar(
-                indicatorColor: Colors.white,
-                indicatorWeight: 0.8,
-                indicatorPadding: EdgeInsets.zero,
-                padding: EdgeInsets.zero,
-                controller: tabController,
-                tabs: const [
-                  Tab(icon: Icon(Icons.camera_alt)),
-                  Tab(icon: Icon(Icons.calendar_month)),
-                ],
-              ),
-            ),
-            Expanded(
-              child: TabBarView(
-                controller: tabController,
-                children: [
-                  _postsDisplay(),
-                  _routineDisplay(scrollController),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+          );
+        }
+      },
     );
+  }
+
+  Future<User?> getUserData() async {
+    final id =
+        Provider.of<UserProvider>(context, listen: false).getUserProvider;
+    var res = await http.get(Uri.parse('$URL_HEAD/api/getUser/$id'));
+    var userData = json.decode(res.body);
+
+    User? user;
+
+    if (res.statusCode == 200) {
+      var postAmount = userData['posts'].length;
+      user = User(
+        name: userData['name'],
+        lastName: userData['lastName'],
+        email: userData['email'],
+        username: userData['username'],
+        password: userData['password'],
+        weight: double.parse(userData['weight'].toString()),
+        height: double.parse(userData['height'].toString()),
+        visibility: true,
+        routines: userData['routines'],
+        posts: userData['posts'],
+        friends: userData['friends'],
+        friendRequests: userData['friend_request']
+      );
+    }
+    return user;
   }
 
   Widget _routineDisplay(ScrollController routineScrollController) {
@@ -187,17 +214,9 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget _postsDisplay() {
-    return Text('posts');
-  }
-
-  Widget favouriteStoriesWidget() {
-    return const Padding(
-      padding: EdgeInsets.only(right: 10, left: 10),
-      child: CircleAvatar(
-        radius: 33,
-        backgroundColor: Color(0xFF3E3E3E),
-      ),
+  Widget _postsDisplay(ScrollController postScrollController) {
+    return ProfilePosts(
+      scrollController: postScrollController,
     );
   }
 }

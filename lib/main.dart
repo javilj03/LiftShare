@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:lift_share/providers/UserProvider.dart';
+import '/providers/UserProvider.dart';
 import './providers/DayRoutineProvider.dart';
 import 'package:provider/provider.dart';
-import './modules/db/dbCon.dart';
 import './widgets/AuthWidgets/Login.dart';
 import './widgets/ConstantWidgets/NavBar.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await MongoDb.connect();
   runApp(
     MultiProvider(
       providers: [

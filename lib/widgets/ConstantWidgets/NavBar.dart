@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:lift_share/constants.dart';
-import 'package:lift_share/modules/User.dart';
-import 'package:lift_share/widgets/Search.dart';
+import '../../constants.dart';
+import '../../widgets/Search.dart';
 import '../mainPage.dart';
 import '../Routines.dart';
-import '../Post.dart';
+import '../Camera.dart';
 import './Header.dart';
 import '../Profile.dart';
 class NavBar extends StatefulWidget {
@@ -31,13 +30,13 @@ class _NavBarState extends State<NavBar> {
         selectedWidget = MainPage();
         break;
       case 3:
-        selectedWidget = Post();
+        selectedWidget = Camera();
         break;
       case 4: 
         selectedWidget = Profile();
         break;
     }
-    ;
+    
   }
 
   @override

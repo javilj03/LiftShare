@@ -1,72 +1,96 @@
 import 'package:flutter/material.dart';
-import 'package:lift_share/constants.dart';
+import 'package:liftShare/providers/UserProvider.dart';
+import '../../constants.dart';
 import '../../modules/Routine.dart';
-import 'package:mongo_dart/mongo_dart.dart' as M;
-
-List<Routine> routineList = [
-  Routine(
-      id: M.ObjectId(),
-      name: 'rutina1',
-      desc: 'rutina de ...',
-      visibility: true),
-  Routine(
-      id: M.ObjectId(),
-      name: 'rutina2',
-      desc: 'rutina de ...',
-      visibility: true),
-  Routine(
-      id: M.ObjectId(),
-      name: 'rutina3',
-      desc: 'rutina de ...',
-      visibility: true),
-  Routine(
-      id: M.ObjectId(),
-      name: 'rutina4',
-      desc: 'rutina de ...',
-      visibility: true),
-  Routine(
-      id: M.ObjectId(),
-      name: 'rutina5',
-      desc: 'rutina de ...',
-      visibility: true),
-  Routine(
-      id: M.ObjectId(),
-      name: 'rutina6',
-      desc: 'rutina de ...',
-      visibility: true),
-  Routine(
-      id: M.ObjectId(),
-      name: 'rutina7',
-      desc: 'rutina de ...',
-      visibility: true),
-  Routine(
-      id: M.ObjectId(),
-      name: 'rutina8',
-      desc: 'rutina de ...',
-      visibility: true),
-  Routine(
-      id: M.ObjectId(),
-      name: 'rutina9',
-      desc: 'rutina de ...',
-      visibility: true),
-];
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 class ProfileRoutine extends StatelessWidget {
   final ScrollController scrollController;
-  ProfileRoutine({required this.scrollController});
+  final String? userId;
+  ProfileRoutine({required this.scrollController, this.userId});
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      controller: scrollController,
-      itemCount: routineList.length,
-      itemBuilder: (context, index) {
-        Routine routine = routineList[index];
-        return Column(
-          children: [
-            _RoutineCardProfile(routine),
-          ],
-        );
+    Future<List<Routine>> getRoutinesData() async {
+      List<Routine> routines = [];
+      try {
+        if (userId != null) {
+          var res = await http
+              .get(Uri.parse('$URL_HEAD/api/getUserRoutines/$userId'));
+
+          if (res.statusCode == 200) {
+            List<dynamic> data = jsonDecode(res.body);
+
+            // Recorre cada objeto obtenido y crea un objeto Routine
+            for (var item in data) {
+              Routine routine = Routine(
+                id: item['_id'],
+                name: item['name'],
+                desc: item['desc'],
+                days: List<String>.from(item['days_of_week']),
+                visibility: item['visibility'],
+              );
+              routines.add(routine);
+            }
+            return routines;
+          }else{
+            print('Error de peticion: ${res.body}');
+          }
+        } else {
+          var id =
+              Provider.of<UserProvider>(context, listen: false).getUserProvider;
+          var res =
+              await http.get(Uri.parse('$URL_HEAD/api/getUserRoutines/$id'));
+          if (res.statusCode == 200) {
+            List<dynamic> data = jsonDecode(res.body);
+
+            // Recorre cada objeto obtenido y crea un objeto Routine
+            for (var item in data) {
+              Routine routine = Routine(
+                id: item['_id'],
+                name: item['name'],
+                desc: item['desc'],
+                days: List<String>.from(item['days_of_week']),
+                visibility: item['visibility'],
+              );
+              routines.add(routine);
+            }
+            return routines;
+          }else{
+            print('Error de peticion: ${res.body}' );
+          }
+        }
+      } catch (err) {
+        print(err);
+      }
+      return [];
+    }
+
+    return FutureBuilder<List<Routine>>(
+      future: getRoutinesData(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator(); // Mostrar un indicador de carga mientras se espera la respuesta de getUser()
+        } else if (snapshot.hasError) {
+          return Text(
+              'Error: ${snapshot.error}'); // Manejar errores de obtener la información del usuario
+        } else {
+          List<Routine> routineList = snapshot.data as List<Routine>;
+          return ListView.builder(
+            controller: scrollController,
+            itemCount: routineList.length,
+            itemBuilder: (context, index) {
+              Routine routine = routineList[index];
+              return Column(
+                children: [
+                  _RoutineCardProfile(routine),
+                ],
+              );
+            },
+          );
+        }
       },
     );
   }

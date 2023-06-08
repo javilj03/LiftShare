@@ -3,23 +3,26 @@ import 'package:mongo_dart/mongo_dart.dart';
 import 'db/dbCon.dart';
 
 class User {
-  final ObjectId id;
+  final String? id;
   final String name;
   final String lastName;
-  final DateTime birth_date;
+  final DateTime? birth_date;
   final double weight;
   final double height;
   final String username;
   final String email;
   final bool visibility;
   final String password;
-  final List<ObjectId>? routines;
+  final List<dynamic>? routines;
+  final List<dynamic>? posts;
+  final List<dynamic>? friends;
+  final List<dynamic>? friendRequests;
 
   User({
-    required this.id,
+    this.id,
     required this.name,
     required this.lastName,
-    required this.birth_date,
+    this.birth_date,
     required this.weight,
     required this.height,
     required this.username,
@@ -27,8 +30,10 @@ class User {
     required this.visibility,
     required this.password,
     this.routines,
+    this.posts,
+    this.friendRequests,
+    this.friends
   });
-
 
   Map<String, dynamic> toMap() {
     return {
@@ -47,18 +52,17 @@ class User {
 
   factory User.fromMap(Map<String, dynamic> map) {
     return User(
-      id: map['_id'],
-      name: map['name'],
-      lastName: map['lastName'],
-      birth_date: DateTime.parse(map['birth_date']),
-      weight: map['weight'],
-      height: map['height'],
-      username: map['username'],
-      email: map['email'],
-      visibility: map['visibility'],
-      password: map['password'],
-      routines: map['routines']
-    );
+        id: map['_id'],
+        name: map['name'],
+        lastName: map['lastName'],
+        birth_date: DateTime.parse(map['birth_date']),
+        weight: map['weight'],
+        height: map['height'],
+        username: map['username'],
+        email: map['email'],
+        visibility: map['visibility'],
+        password: map['password'],
+        routines: map['routines']);
   }
 
   @override

@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:mongo_dart/mongo_dart.dart' as Mongo;
 import '../../modules/User.dart';
-import '../../modules/db/dbCon.dart';
+import '../../constants.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../ConstantWidgets/NavBar.dart';
+import 'package:provider/provider.dart';
+import '../../providers/UserProvider.dart';
 
 class ExtraRegister extends StatelessWidget {
   final nameController;
@@ -68,12 +73,10 @@ class ExtraRegister extends StatelessWidget {
     );
   }
 
-  _sendData(BuildContext context) {
+  _sendData(BuildContext context) async {
     User u = User(
-      id: Mongo.ObjectId(),
       name: nameController.text,
       lastName: lastNameController.text,
-      birth_date: DateTime.now(),
       weight: double.parse(weightController.text),
       height: double.parse(heightController.text),
       username: usernameController.text,
@@ -81,10 +84,35 @@ class ExtraRegister extends StatelessWidget {
       visibility: true,
       password: passwordController.text,
     );
-    _createUser(u);
-  }
-
-  _createUser(User user) async {
-    await MongoDb.insertUser(user);
+    try {
+      var response = await http.post(
+        Uri.parse('$URL_HEAD/api/createUser'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(
+          {
+            'name': u.name,
+            'lastName': u.lastName,
+            'username': u.username,
+            'password': u.password,
+            'email': u.email,
+            'weight': u.weight,
+            'height': u.height,
+          },
+        ),
+      );
+      print(response.body);
+      if (response.statusCode == 200) {
+        Provider.of<UserProvider>(context, listen: false)
+            .addUser(response.body);
+        Navigator.of(context).pop();
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (ctx) => NavBar()),
+        );
+      } else {
+        print('Usuario no valido');
+      }
+    } catch (err) {
+      print(err);
+    }
   }
 }

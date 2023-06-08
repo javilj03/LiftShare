@@ -1,15 +1,15 @@
-import 'package:lift_share/modules/Exercise.dart';
+import '../modules/Exercise.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 
 class Routine {
-  final ObjectId id;
+  final String? id;
   final String name;
   final String desc;
-  final List<ObjectId>? days;
+  final List<String>? days;
   final bool visibility;
 
   Routine({
-    required this.id,
+    this.id,
     required this.name,
     required this.desc,
     this.days,

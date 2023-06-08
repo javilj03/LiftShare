@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-
+import '../../modules/Routine.dart';
 import 'RoutineView.dart';
 
 class RoutineCard extends StatelessWidget {
-  final routine;
+  final Routine routine;
 
   RoutineCard({required this.routine});
 
@@ -12,7 +12,7 @@ class RoutineCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
-          builder: (ctx) => RoutineView(),
+          builder: (ctx) => RoutineView(id: routine.id!),
         ));
       },
       child: Card(

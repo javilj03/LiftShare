@@ -1,7 +1,8 @@
-const CONNECTION = 'mongodb://admin:pass@172.27.240.1:27017/liftShare/?authSource=admin';
+const URL_HEAD = 'http://44.197.8.254:3000';
 const USERCOLLECTION = 'user';
 const ROUTINECOLLECTION = 'routine';
 const DAYROUTINE = 'day_routine';
+const ADMIN_ID = '64707f03a18e4befd3fcadcc';
 
 
 //Colores

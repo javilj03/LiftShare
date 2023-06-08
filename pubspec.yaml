@@ -1,4 +1,4 @@
-name: lift_share
+name: liftShare
 description: A new Flutter project.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -30,6 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  requests: ^4.7.0
   mongo_dart: ^0.7.4
   shelf: ^1.2.0
   shelf_hotreload: ^1.1.0
@@ -41,6 +42,8 @@ dependencies:
   cupertino_icons: ^1.0.2
   path_provider: ^2.0.5
   http: ^0.13.6
+  image_picker: ^0.8.7+5
+  dio: ^5.2.0+1
 
 
 dev_dependencies:

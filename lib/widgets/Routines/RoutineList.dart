@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:lift_share/modules/db/dbCon.dart';
-import 'package:lift_share/widgets/Routines/RoutineCard.dart';
+import '../../widgets/Routines/RoutineCard.dart';
 import '../../modules/Routine.dart';
-import 'package:mongo_dart/mongo_dart.dart' as Mongo;
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import '../../constants.dart';
 
 class RoutineList extends StatelessWidget {
-  final Mongo.ObjectId? userId;
+  final String userId;
 
   RoutineList({required this.userId});
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Routine>>(
-      future: MongoDb.getRoutinesForUser(userId),
+      future: getRoutines(userId),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return CircularProgressIndicator();
@@ -32,4 +33,33 @@ class RoutineList extends StatelessWidget {
       },
     );
   }
+
+  Future<List<Routine>> getRoutines(String userId) async {
+  List<Routine> routines = [];
+  try {
+    var response = await http.get(Uri.parse('$URL_HEAD/api/getUserRoutines/$userId'));
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = jsonDecode(response.body);
+
+      // Recorre cada objeto obtenido y crea un objeto Routine
+      for (var item in data) {
+        Routine routine = Routine(
+          id: item['_id'],
+          name: item['name'],
+          desc: item['desc'],
+          days: List<String>.from(item['days_of_week']),
+          visibility: item['visibility'],
+        );
+        routines.add(routine);
+      }
+    } else {
+      print('Error en la petición HTTP: ${response.statusCode}');
+    }
+  } catch (err) {
+    print('Error al obtener rutinas de usuario: $err');
+  }
+
+  return routines;
+}
 }

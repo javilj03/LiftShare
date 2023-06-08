@@ -10,7 +10,7 @@ class MongoDb {
   static var db, collectionUser;
 
   static connect() async {
-    db = await Db.create(CONNECTION);
+    // db = await Db.create(CONNECTION);
     await db.open();
     collectionUser = db.collection(USERCOLLECTION);
   }
@@ -62,7 +62,7 @@ class MongoDb {
   }
 
   static delete(User user) async {
-    await collectionUser.remove(where.id(user.id));
+    // await collectionUser.remove(where.id(user.id));
   }
 
   static Future<List<Routine>> getRoutinesForUser(ObjectId? userId) async {

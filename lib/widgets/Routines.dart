@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lift_share/widgets/Routines/CreateRoutine.dart';
-import 'package:lift_share/widgets/Routines/RoutineList.dart';
+import '../constants.dart';
+import '../widgets/Routines/CreateRoutine.dart';
+import '../widgets/Routines/RoutineList.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import '../providers/UserProvider.dart';
@@ -41,7 +42,7 @@ class Routines extends StatelessWidget {
                   Container(
                     height: 100,
                     child: RoutineList(
-                      userId: null,
+                      userId: ADMIN_ID,
                     ),
                   ),
                 ],
@@ -73,7 +74,7 @@ class Routines extends StatelessWidget {
                         final userIdProvider =
                             Provider.of<UserProvider>(context,
                                 listen: false);
-                        Mongo.ObjectId userId =
+                        String userId =
                             userIdProvider.getUserProvider;
                         
                         print('ID user: $userId');

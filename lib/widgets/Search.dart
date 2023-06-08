@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../widgets/Search/ProfileSearched.dart';
 import 'dart:convert';
+import '../constants.dart';
+import 'Profile.dart';
 
 class Search extends StatefulWidget {
   @override
@@ -8,18 +11,41 @@ class Search extends StatefulWidget {
 }
 
 class _SearchState extends State<Search> {
-  String searchText = '';
+  final textController = TextEditingController();
   List<String> userNames = [];
+  List<String> userIds = [];
 
   void makeHttpRequest() async {
-    var url = Uri.parse('https://ejemplo.com/buscar?query=$searchText');
-    var response = await http.get(url);
+    var url = Uri.parse('$URL_HEAD/api/searchUsername/${textController.text}');
+    try {
+      var response = await http.get(url);
 
-    setState(() {
-      // Parsea la respuesta y actualiza la lista de nombres de usuario
-      List<dynamic> data = jsonDecode(response.body);
-      userNames = data.map((user) => user['name'] as String).toList();
-    });
+      if (response.statusCode == 200) {
+        List<dynamic> data = jsonDecode(response.body);
+        print(data);
+        if(data.isNotEmpty){
+          setState(() {
+          // Parsea la respuesta y actualiza la lista de nombres de usuario
+          
+          userNames = data.map((user) => user['username'] as String).toList();
+          userIds = data.map((e) => e['_id'] as String).toList();
+        });
+        }else{
+          ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('No se han encontrado usuarios', textAlign: TextAlign.center,),
+            duration: Duration(seconds: 3), // Duración del SnackBar
+          ),
+        );
+        }
+        
+      } else {
+        print('Ha ocurrido un error');
+        print(response.body);
+      }
+    } catch (err) {
+      print(err);
+    }
   }
 
   @override
@@ -42,11 +68,7 @@ class _SearchState extends State<Search> {
               ),
               Expanded(
                 child: TextField(
-                  onChanged: (value) {
-                    setState(() {
-                      searchText = value;
-                    });
-                  },
+                  controller: textController,
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     hintText: 'Buscar',
@@ -61,7 +83,10 @@ class _SearchState extends State<Search> {
           child: ListView.builder(
             itemCount: userNames.length,
             itemBuilder: (context, index) {
-              return UserCard(userNames[index]);
+              return UserCard(
+                userNames[index],
+                userIds[index],
+              );
             },
           ),
         ),
@@ -69,15 +94,26 @@ class _SearchState extends State<Search> {
     );
   }
 
-  Widget UserCard(String name) {
-    return Container(
-      width: double.infinity,
-      child: Card(
-        child: Row(
-          children: [
-            Icon(Icons.account_circle),
-            Text(name),
-          ],
+  Widget UserCard(String name, String id) {
+    return GestureDetector(
+      onTap: () => {
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (ctx) => ProfileSearched(id: id,))),
+      },
+      child: Container(
+        height: 75,
+        width: double.infinity,
+        child: Card(
+          color: Colors.grey[500],
+          child: Row(
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Icon(Icons.account_circle),
+              ),
+              Text(name),
+            ],
+          ),
         ),
       ),
     );
