@@ -64,6 +64,7 @@ class ExtraRegister extends StatelessWidget {
                     onPressed: () {
                       _sendData(context);
                     },
+                    style: ElevatedButton.styleFrom(backgroundColor: Color(ORANGE)),
                     child: Text('Completar')),
               )
             ],

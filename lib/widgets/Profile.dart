@@ -44,121 +44,134 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
             controller: scrollController,
             child: SizedBox(
               width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height - 140,
+              height: MediaQuery.of(context).size.height -
+                  kToolbarHeight -
+                  kBottomNavigationBarHeight,
               child: Column(
                 children: [
                   Container(
                     color: Color(ORANGE),
                     padding: EdgeInsets.all(8),
-                    child: Row(
+                    child: Column(
                       children: [
-                        Expanded(
-                          flex: 1,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const CircleAvatar(
-                                radius: 45,
-                                backgroundImage: NetworkImage(
-                                    "https://images.unsplash.com/photo-1564564295391-7f24f26f568b"),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 10),
+                                  Text(user!.username,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20)),
+                                ],
                               ),
-                              const SizedBox(height: 10),
-                              Text(user!.username),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Color.fromARGB(255, 208, 134, 14),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Color(
-                                          BLACK), // Utilizamos Colors.black para el color negro
-                                      offset: Offset(0, 2),
-                                      blurRadius: 2,
-                                      spreadRadius: -1,
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Color.fromARGB(255, 208, 134, 14),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Color(
+                                              BLACK), // Utilizamos Colors.black para el color negro
+                                          offset: Offset(0, 2),
+                                          blurRadius: 2,
+                                          spreadRadius: -1,
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                                padding: EdgeInsets.all(8),
-                                child: Column(
-                                  children: [
-                                    Text(user.posts != null ? user.posts!.length.toString() : '0'),
-                                    const SizedBox(height: 5),
-                                    Text(
-                                      "Posts",
+                                    padding: EdgeInsets.all(8),
+                                    child: Column(
+                                      children: [
+                                        Text(user.posts != null
+                                            ? user.posts!.length.toString()
+                                            : '0'),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                          "Posts",
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () => {
-                                  Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => FriendList(user: user,)))
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Color.fromARGB(255, 208, 134, 14),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Color(
-                                            BLACK), // Utilizamos Colors.black para el color negro
-                                        offset: Offset(0, 2),
-                                        blurRadius: 2,
-                                        spreadRadius: -1,
+                                  ),
+                                  GestureDetector(
+                                    onTap: () => {
+                                      Navigator.of(context)
+                                          .push(MaterialPageRoute(
+                                              builder: (ctx) => FriendList(
+                                                    user: user,
+                                                  )))
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color:
+                                            Color.fromARGB(255, 208, 134, 14),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Color(
+                                                BLACK), // Utilizamos Colors.black para el color negro
+                                            offset: Offset(0, 2),
+                                            blurRadius: 2,
+                                            spreadRadius: -1,
+                                          ),
+                                        ],
                                       ),
-                                    ],
+                                      padding: EdgeInsets.all(8),
+                                      child: Column(
+                                        children: [
+                                          Text(user.friends != null
+                                              ? user.friends!.length.toString()
+                                              : '0'),
+                                          const SizedBox(height: 5),
+                                          Text("Friends"),
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                  padding: EdgeInsets.all(8),
-                                  child: Column(
-                                    children: [
-                                      Text(user.friends != null ? user.friends!.length.toString() : '0'),
-                                      const SizedBox(height: 5),
-                                      Text("Friends"),
-                                    ],
-                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        Container(
+                          color: Color(ORANGE),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Text(user.email, textAlign: TextAlign.left,),
+                                  ],
                                 ),
                               ),
-                              
                             ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    color: Color(ORANGE),
-                    padding: EdgeInsets.all(8),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 9,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Text(user.email),
+                        Container(
+                          color: Color(ORANGE),
+                          child: TabBar(
+                            indicatorColor: Colors.white,
+                            indicatorWeight: 0.8,
+                            indicatorPadding: EdgeInsets.zero,
+                            padding: EdgeInsets.zero,
+                            controller: tabController,
+                            tabs: const [
+                              Tab(icon: Icon(Icons.camera_alt)),
+                              Tab(icon: Icon(Icons.calendar_month)),
                             ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    color: Color(ORANGE),
-                    child: TabBar(
-                      indicatorColor: Colors.white,
-                      indicatorWeight: 0.8,
-                      indicatorPadding: EdgeInsets.zero,
-                      padding: EdgeInsets.zero,
-                      controller: tabController,
-                      tabs: const [
-                        Tab(icon: Icon(Icons.camera_alt)),
-                        Tab(icon: Icon(Icons.calendar_month)),
                       ],
                     ),
                   ),
@@ -191,19 +204,18 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     if (res.statusCode == 200) {
       var postAmount = userData['posts'].length;
       user = User(
-        name: userData['name'],
-        lastName: userData['lastName'],
-        email: userData['email'],
-        username: userData['username'],
-        password: userData['password'],
-        weight: double.parse(userData['weight'].toString()),
-        height: double.parse(userData['height'].toString()),
-        visibility: true,
-        routines: userData['routines'],
-        posts: userData['posts'],
-        friends: userData['friends'],
-        friendRequests: userData['friend_request']
-      );
+          name: userData['name'],
+          lastName: userData['lastName'],
+          email: userData['email'],
+          username: userData['username'],
+          password: userData['password'],
+          weight: double.parse(userData['weight'].toString()),
+          height: double.parse(userData['height'].toString()),
+          visibility: true,
+          routines: userData['routines'],
+          posts: userData['posts'],
+          friends: userData['friends'],
+          friendRequests: userData['friend_request']);
     }
     return user;
   }

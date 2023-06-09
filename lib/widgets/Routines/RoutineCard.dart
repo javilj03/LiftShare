@@ -35,9 +35,7 @@ class RoutineCard extends StatelessWidget {
                     routine.name,
                     style: TextStyle(color: Colors.white),
                   ),
-                  Text(routine.desc,
-                      textAlign: TextAlign.left,
-                      style: TextStyle(color: Colors.white)),
+                  
                 ],
               ),
             ],

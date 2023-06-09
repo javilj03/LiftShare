@@ -5,16 +5,23 @@ import '../../widgets/Routines/CreateRoutine.dart';
 import '../../modules/Routine.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import '../../providers/UserProvider.dart';
 
-class RoutineView extends StatelessWidget {
+class RoutineView extends StatefulWidget {
   final String id;
   RoutineView({required this.id});
+
+  @override
+  State<RoutineView> createState() => _RoutineViewState();
+}
+
+class _RoutineViewState extends State<RoutineView> {
+  
   @override
   Widget build(BuildContext context) {
-    print(id);
-
     return FutureBuilder<Routine>(
-      future: getRoutine(id),
+      future: getRoutine(widget.id),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return CircularProgressIndicator();
@@ -81,8 +88,8 @@ class RoutineView extends StatelessWidget {
                                     rows: routine.exercises.map((exercise) {
                                       return DataRow(cells: <DataCell>[
                                         DataCell(Text(exercise['name'])),
-                                        DataCell(
-                                            Text(exercise['series'].toString())),
+                                        DataCell(Text(
+                                            exercise['series'].toString())),
                                         DataCell(
                                             Text(exercise['reps'].toString())),
                                       ]);
@@ -93,15 +100,82 @@ class RoutineView extends StatelessWidget {
                             ],
                           );
                         },
+                        
                       );
+                      
                     }
                   }),
+              floatingActionButton: FloatingActionButton(
+                backgroundColor: Color(ORANGE),
+                onPressed: () {
+                  removeRoutine(routine, context);
+                },
+                child: const Icon(Icons.delete),
+              ),
             ),
           );
         }
       },
     );
   }
+
+  bool checkRoutineExistsInJson(String id, dynamic json) {
+    final routines = json['routines'];
+    if (routines != null && routines is List<dynamic>) {
+      return routines.any((routine) => routine == id);
+    }
+    return false;
+  }
+
+Future<void> removeRoutine(Routine routine, BuildContext context) async {
+  try {
+    final userId =
+        Provider.of<UserProvider>(context, listen: false).getUserProvider;
+    var resUser = await http.get(Uri.parse('$URL_HEAD/api/getUser/$userId'));
+    var userData = json.decode(resUser.body);
+
+    if (checkRoutineExistsInJson(widget.id, userData)) {
+      var res =
+          await http.delete(Uri.parse('$URL_HEAD/api/deleteRoutine/${routine.id}'));
+      print(res.body);
+      if (res.statusCode == 200) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Rutina eliminada correctamente',
+              textAlign: TextAlign.center,
+            ),
+            duration: Duration(seconds: 4), 
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Error al eliminar la rutina',
+              textAlign: TextAlign.center,
+            ),
+            duration: Duration(seconds: 4), 
+          ),
+        );
+      }
+    } else {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'No puedes eliminar esta rutina porque no es tuya',
+            textAlign: TextAlign.center,
+          ),
+          duration: Duration(seconds: 4), 
+        ),
+      );
+    }
+  } catch (err) {
+    print(err);
+  }
+}
 
   Future<Routine> getRoutine(String id) async {
     Routine routine;

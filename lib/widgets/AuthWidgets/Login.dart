@@ -49,6 +49,7 @@ class Login extends StatelessWidget {
                     border: OutlineInputBorder(),
                     labelText: 'Contraseña',
                   ),
+                  obscureText: true,
                   controller: passwordController,
                 ),
               ),

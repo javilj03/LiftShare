@@ -54,33 +54,45 @@ class _CameraState extends State<Camera> {
   }
 
   Future<void> _uploadImage() async {
-     try {
-    String userId =
-        Provider.of<UserProvider>(context, listen: false).getUserProvider;
-    String url = 'http://44.197.8.254:3000/api/upload/$userId';
+    try {
+      String userId =
+          Provider.of<UserProvider>(context, listen: false).getUserProvider;
+      String url = 'http://44.197.8.254:3000/api/upload/$userId';
 
-    String fileName = selectedImage!.path.split('/').last;
+      String fileName = selectedImage!.path.split('/').last;
 
-    dio.FormData formData = dio.FormData();
-    formData.fields.addAll([
-      MapEntry('title', 'Imagen subida desde Flutter'),
-      MapEntry('date', DateTime.now().toString())
-    ]);
-    formData.files.add(MapEntry(
-      'image',
-      await dio.MultipartFile.fromFile(selectedImage!.path, filename: fileName),
-    ));
+      dio.FormData formData = dio.FormData();
+      formData.fields.addAll([
+        MapEntry('title', _titleController.text),
+        MapEntry('date', DateTime.now().toString())
+      ]);
+      formData.files.add(MapEntry(
+        'image',
+        await dio.MultipartFile.fromFile(selectedImage!.path,
+            filename: fileName),
+      ));
 
-    dio.Dio dioClient = dio.Dio();
-    var response = await dioClient.post(
-      url,
-      data: formData,
-      onSendProgress: (count, total) => {print('$count, $total')},
-    );
+      dio.Dio dioClient = dio.Dio();
+      var response = await dioClient.post(
+        url,
+        data: formData,
+        onSendProgress: (count, total) => {print('$count, $total')},
+      );
 
-    print(response.data);
-  } catch (err) {
-    print(err);
-  }
+      print(response.data);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Imagen añadida correctamente',
+            textAlign: TextAlign.center,
+          ),
+          duration: Duration(seconds: 4), // Duración del SnackBar
+        ),
+      );
+      selectedImage = null;
+      _titleController.text = '';
+    } catch (err) {
+      print(err);
+    }
   }
 }

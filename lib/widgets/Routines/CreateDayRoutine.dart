@@ -51,7 +51,7 @@ class _CreateDayRoutineState extends State<CreateDayRoutine> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.dayRoutine != null
-            ? widget.dayRoutine!.day_of_week + ' como objeto'
+            ? widget.dayRoutine!.day_of_week 
             : widget.day!),
         backgroundColor: Color(ORANGE),
       ),
@@ -212,10 +212,9 @@ class _CreateDayRoutineState extends State<CreateDayRoutine> {
       }
     }
 
-    if (!dayFound) {
-      Provider.of<DayRoutineProvider>(context, listen: false)
-          .addDayRoutine(newDayRoutine);
-    }
+    Provider.of<DayRoutineProvider>(context, listen: false)
+        .addDayRoutine(newDayRoutine);
+
     if (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

@@ -55,13 +55,13 @@ class PostCard extends StatelessWidget {
               return Container(
                 padding: EdgeInsets.all(8),
                 child: Card(
-                  color: Colors.blueGrey,
+                  color: Colors.blueGrey[100],
                   elevation: 8,
                   child: Column(
                     children: [
                       ListTile(
-                        leading: Icon(Icons.account_circle),
                         title: Text(posts[index].owner['username']),
+                        subtitle: Text(posts[index].title),
                       ),
                       Container(
                         width: double.infinity,

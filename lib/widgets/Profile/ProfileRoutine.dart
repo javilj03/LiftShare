@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:liftShare/providers/UserProvider.dart';
+import 'package:liftShare/widgets/Routines/RoutineView.dart';
 import '../../constants.dart';
 import '../../modules/Routine.dart';
 import 'dart:convert';
@@ -85,7 +86,7 @@ class ProfileRoutine extends StatelessWidget {
               Routine routine = routineList[index];
               return Column(
                 children: [
-                  _RoutineCardProfile(routine),
+                  _RoutineCardProfile(routine, context),
                 ],
               );
             },
@@ -95,9 +96,9 @@ class ProfileRoutine extends StatelessWidget {
     );
   }
 
-  Widget _RoutineCardProfile(Routine routine) {
+  Widget _RoutineCardProfile(Routine routine, BuildContext context) {
     return GestureDetector(
-      onTap: () => print('${routine.name}'),
+      onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => RoutineView(id: routine.id!,)),),
       child: Card(
         elevation: 2,
         color: Color(BLUE),
@@ -110,12 +111,9 @@ class ProfileRoutine extends StatelessWidget {
             children: [
               Text(
                 routine.name,
-                style: TextStyle(color: Color(WHITE)),
+                style: TextStyle(color: Color(WHITE), fontWeight: FontWeight.bold),
               ),
-              Text(
-                routine.desc,
-                style: TextStyle(color: Color(WHITE)),
-              ),
+              
             ],
           ),
         ),

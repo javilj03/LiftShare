@@ -92,49 +92,85 @@ class ProfilePosts extends StatelessWidget {
   }
 
   Widget _PostCardProfile(Post post, BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(8),
-      child: Card(
-        color: Colors.blueGrey,
-        elevation: 8,
-        child: Column(
-          children: [
-            ListTile(
-                leading: Icon(Icons.account_circle),
+    return GestureDetector(
+      onTap: () => {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('¿Deseas eliminar esta publicación?'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('Cancelar'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      _deletePost(post, context);
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('Eliminar'),
+                  ),
+                ],
+              );
+            })
+      },
+      child: Container(
+        padding: EdgeInsets.all(8),
+        child: Card(
+          color: Colors.blueGrey[100],
+          elevation: 8,
+          child: Column(
+            children: [
+              ListTile(
+                
                 title: Text(post.owner['username']),
                 subtitle: Text(post.title),
-                onTap: () => AlertDialog(
-                      title: Text('¿Deseas eliminar esta publicación?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: Text('Cancelar'),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            _deletePost(post);
-                            Navigator.of(context).pop();
-                          },
-                          child: Text('Eliminar'),
-                        ),
-                      ],
-                    )),
-            Container(
-              width: double.infinity,
-              child: Image.network(
-                post.image,
-                fit: BoxFit
-                    .cover, // Ajusta el tamaño de la imagen para cubrir el espacio disponible
               ),
-            ),
-          ],
+              Container(
+                width: double.infinity,
+                child: Image.network(
+                  post.image,
+                  fit: BoxFit
+                      .cover, // Ajusta el tamaño de la imagen para cubrir el espacio disponible
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
-  Future<void> _deletePost(Post post) async{
-    
+
+  Future<void> _deletePost(Post post, BuildContext context) async {
+    try {
+      var response =
+          await http.delete(Uri.parse('$URL_HEAD/api/deletePost/${post.id}'));
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Post añadido correctamente',
+              textAlign: TextAlign.center,
+            ),
+            duration: Duration(seconds: 4), // Duración del SnackBar
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Error al eliminar el post',
+              textAlign: TextAlign.center,
+            ),
+            duration: Duration(seconds: 4), // Duración del SnackBar
+          ),
+        );
+      }
+    } catch (err) {
+      print(err);
+    }
   }
 }

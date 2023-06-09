@@ -125,7 +125,6 @@ class _CreateRoutineState extends State<CreateRoutine> {
                   ]),
             ),
             _buildSelectedDaysCards(),
-            
           ],
         ),
       ),
@@ -238,7 +237,6 @@ class _CreateRoutineState extends State<CreateRoutine> {
                         } else {
                           bool dayFound = false;
                           for (var e in dayRoutines) {
-                            print(e.day_of_week);
                             if (e.day_of_week == changeName(day)) {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
@@ -294,6 +292,7 @@ class _CreateRoutineState extends State<CreateRoutine> {
     }
 
     final userIdProvider = Provider.of<UserProvider>(context, listen: false);
+
     if (widget.routine == null) {
       Routine newRoutine = Routine(
         name: nameController.text,
@@ -312,8 +311,7 @@ class _CreateRoutineState extends State<CreateRoutine> {
         }),
       );
       if (response.statusCode == 200) {
-        final dayRoutineProvider =
-            Provider.of<DayRoutineProvider>(context, listen: false);
+        Provider.of<DayRoutineProvider>(context, listen: false);
         dayRoutineProvider.clearDayRoutines();
         Navigator.of(context).pop();
       } else {
@@ -321,6 +319,10 @@ class _CreateRoutineState extends State<CreateRoutine> {
         print(response.body);
       }
     } else {
+      var res = await http.get(
+          Uri.parse('$URL_HEAD/api/getUser/${userIdProvider.getUserProvider}'));
+      var userData = json.decode(res.body);
+
       Routine newRoutine = Routine(
         id: widget.routine!.id,
         name: nameController.text,
@@ -328,20 +330,52 @@ class _CreateRoutineState extends State<CreateRoutine> {
         visibility: true,
         days: idList,
       );
-      var response = await http.put(
-        Uri.parse('$URL_HEAD/api/updRoutine/${newRoutine.id!}'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({'days_of_week': newRoutine.days}),
-      );
-      if (response.statusCode == 200) {
-        final dayRoutineProvider =
-            Provider.of<DayRoutineProvider>(context, listen: false);
-        dayRoutineProvider.clearDayRoutines();
-        Navigator.of(context).pop();
+      if (checkRoutineExistsInJson(newRoutine.id!, userData)) {
+        var response = await http.put(
+          Uri.parse('$URL_HEAD/api/updRoutine/${newRoutine.id!}'),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            'name': newRoutine.name,
+            'desc': newRoutine.desc,
+            'days_of_week': newRoutine.days,
+          }),
+        );
+        if (response.statusCode == 200) {
+          Provider.of<DayRoutineProvider>(context, listen: false);
+          dayRoutineProvider.clearDayRoutines();
+          Navigator.of(context).pop();
+        } else {
+          print('Ha ocurrido un error');
+          print(response.body);
+        }
       } else {
-        print('Ha ocurrido un error');
-        print(response.body);
+        var response = await http.put(
+          Uri.parse(
+              '$URL_HEAD/api/createRoutine/${userIdProvider.getUserProvider.replaceAll("\"", "")}'),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            'name': newRoutine.name,
+            'desc': newRoutine.desc,
+            'days_of_week': newRoutine.days
+          }),
+        );
+        if (response.statusCode == 200) {
+          Provider.of<DayRoutineProvider>(context, listen: false);
+          dayRoutineProvider.clearDayRoutines();
+          Navigator.of(context).pop();
+        } else {
+          print('Ha ocurrido un error');
+          print(response.body);
+        }
       }
     }
+  }
+
+  bool checkRoutineExistsInJson(String id, dynamic json) {
+    final routines = json['routines'];
+    if (routines != null && routines is List<dynamic>) {
+      return routines.any((routine) => routine == id);
+    }
+    return false;
   }
 }
