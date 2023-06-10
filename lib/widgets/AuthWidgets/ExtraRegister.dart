@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import '../ConstantWidgets/NavBar.dart';
 import 'package:provider/provider.dart';
 import '../../providers/UserProvider.dart';
+import 'package:intl/intl.dart';
 
 class ExtraRegister extends StatelessWidget {
   final nameController;
@@ -32,19 +33,36 @@ class ExtraRegister extends StatelessWidget {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.only(
-                    bottom: 8, left: 8, right: 8, top: 50),
-                child: TextField(
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Fecha de nacimiento',
-                  ),
-                  controller: birthController,
-                ),
-              ),
+                  padding: const EdgeInsets.only(
+                      bottom: 8, left: 8, right: 8, top: 50),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Fecha de nacimiento',
+                    ),
+                    onTap: () async {
+                      DateTime? selectedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime.now(),
+                        locale: const Locale(
+                            'es', 'ES'), // Set the locale to Spanish (Spain)
+                      );
+
+                      if (selectedDate != null) {
+                        String formattedDate =
+                            DateFormat('dd/MM/yyyy').format(selectedDate);
+                        birthController.text = formattedDate;
+                      }
+                    },
+                    controller: birthController,
+                    readOnly: true,
+                  )),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextField(
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
                   decoration: InputDecoration(
                       border: OutlineInputBorder(), labelText: 'Peso'),
                   controller: weightController,
@@ -53,6 +71,7 @@ class ExtraRegister extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextField(
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
                   decoration: InputDecoration(
                       border: OutlineInputBorder(), labelText: 'Altura'),
                   controller: heightController,
@@ -64,7 +83,8 @@ class ExtraRegister extends StatelessWidget {
                     onPressed: () {
                       _sendData(context);
                     },
-                    style: ElevatedButton.styleFrom(backgroundColor: Color(ORANGE)),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(ORANGE)),
                     child: Text('Completar')),
               )
             ],
@@ -101,18 +121,30 @@ class ExtraRegister extends StatelessWidget {
           },
         ),
       );
-      print(response.body);
       if (response.statusCode == 200) {
+        var responseData = json.decode(response.body);
         Provider.of<UserProvider>(context, listen: false)
-            .addUser(response.body);
+            .addUser(responseData['_id']);
+        
         Navigator.of(context).pop();
         Navigator.of(context).push(
           MaterialPageRoute(builder: (ctx) => NavBar()),
         );
       } else {
-        print('Usuario no valido');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('No se ha podido crear el usuario', textAlign: TextAlign.center,),
+            duration: Duration(seconds: 4), // Duración del SnackBar
+          ),
+        );
       }
     } catch (err) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Ha ocurrido un error', textAlign: TextAlign.center,),
+            duration: Duration(seconds: 4), // Duración del SnackBar
+          ),
+        );
       print(err);
     }
   }

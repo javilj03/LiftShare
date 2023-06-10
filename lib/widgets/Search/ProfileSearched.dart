@@ -255,7 +255,6 @@ class _ProfileSearchedState extends State<ProfileSearched>
             Provider.of<UserProvider>(context, listen: false).getUserProvider;
 
         if (user.friends!.contains(id)) {
-          print('es pana');
           isFriend = true;
         }
       }
@@ -286,7 +285,6 @@ class _ProfileSearchedState extends State<ProfileSearched>
               'friendId': friendId,
             },
           ));
-      print(json.decode(res.body));
     } else if (modo == 'agregar') {
       final res =
           await http.put(Uri.parse('$URL_HEAD/api/sendFriendRequest/$id'),
@@ -296,7 +294,6 @@ class _ProfileSearchedState extends State<ProfileSearched>
                   'friendId': friendId,
                 },
               ));
-      print(res.body);
     }
   }
 

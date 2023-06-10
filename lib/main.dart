@@ -4,6 +4,7 @@ import './providers/DayRoutineProvider.dart';
 import 'package:provider/provider.dart';
 import './widgets/AuthWidgets/Login.dart';
 import './widgets/ConstantWidgets/NavBar.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   runApp(
@@ -33,6 +34,13 @@ class MyAppState extends State<MyApp> {
       routes: {
         '/login': (context) => Login(),
       },
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('es', 'ES'), // Add any other locales you need
+      ],
     );
   }
 }

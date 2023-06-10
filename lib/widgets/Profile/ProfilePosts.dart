@@ -125,7 +125,6 @@ class ProfilePosts extends StatelessWidget {
           child: Column(
             children: [
               ListTile(
-                
                 title: Text(post.owner['username']),
                 subtitle: Text(post.title),
               ),
@@ -146,23 +145,42 @@ class ProfilePosts extends StatelessWidget {
 
   Future<void> _deletePost(Post post, BuildContext context) async {
     try {
-      var response =
-          await http.delete(Uri.parse('$URL_HEAD/api/deletePost/${post.id}'));
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Post añadido correctamente',
-              textAlign: TextAlign.center,
+      final idProvider =
+          Provider.of<UserProvider>(context, listen: false).getUserProvider;
+      var userResponse =
+          await http.get(Uri.parse('$URL_HEAD/api/getUser/$idProvider'));
+      var userResponseData = json.decode(userResponse.body);
+
+      if (checkPostExistsInJson(post.id, userResponseData)) {
+        var response =
+            await http.delete(Uri.parse('$URL_HEAD/api/deletePost/${post.id}'));
+
+        if (response.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Post eliminado correctamente',
+                textAlign: TextAlign.center,
+              ),
+              duration: Duration(seconds: 4), // Duración del SnackBar
             ),
-            duration: Duration(seconds: 4), // Duración del SnackBar
-          ),
-        );
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Error al eliminar el post',
+                textAlign: TextAlign.center,
+              ),
+              duration: Duration(seconds: 4), // Duración del SnackBar
+            ),
+          );
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Error al eliminar el post',
+              'Este post no te pertenece',
               textAlign: TextAlign.center,
             ),
             duration: Duration(seconds: 4), // Duración del SnackBar
@@ -172,5 +190,13 @@ class ProfilePosts extends StatelessWidget {
     } catch (err) {
       print(err);
     }
+  }
+
+  bool checkPostExistsInJson(String id, dynamic json) {
+    final posts = json['posts'];
+    if (posts != null && posts is List<dynamic>) {
+      return posts.any((post) => post == id);
+    }
+    return false;
   }
 }

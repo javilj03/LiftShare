@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import './ExtraRegister.dart';
 
-
 class Register extends StatelessWidget {
   final nameController = TextEditingController();
   final lastNameController = TextEditingController();
@@ -69,6 +68,7 @@ class Register extends StatelessWidget {
                     labelText: 'Contraseña',
                     border: OutlineInputBorder(),
                   ),
+                  obscureText: true,
                   controller: passwordController,
                 ),
               ),
@@ -78,17 +78,33 @@ class Register extends StatelessWidget {
                   backgroundColor: Color(0xFFFCA311), // Color FCA311
                 ),
                 onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                        builder: (ctx) => ExtraRegister(
-                              emailController: emailController,
-                              lastNameController: lastNameController,
-                              nameController: nameController,
-                              passwordController: passwordController,
-                              usernameController: usernameController,
-                            )),
-                  );
+                  if (emailController.text != '' ||
+                      lastNameController.text != '' ||
+                      nameController.text != '' ||
+                      passwordController.text != '' ||
+                      usernameController.text != '') {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (ctx) => ExtraRegister(
+                                emailController: emailController,
+                                lastNameController: lastNameController,
+                                nameController: nameController,
+                                passwordController: passwordController,
+                                usernameController: usernameController,
+                              )),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Hay campos incorrectos',
+                          textAlign: TextAlign.center,
+                        ),
+                        duration: Duration(seconds: 4), // Duración del SnackBar
+                      ),
+                    );
+                  }
                 },
               ),
             ],

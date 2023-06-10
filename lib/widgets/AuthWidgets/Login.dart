@@ -127,6 +127,12 @@ ScaffoldMessenger.of(context).showSnackBar(
         );
       }
     } catch (err) {
+       ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$err', textAlign: TextAlign.center,),
+            duration: Duration(seconds: 4), // Duración del SnackBar
+          ),
+        );
       print('ERROOOOOOR --> $err');
     }
   }

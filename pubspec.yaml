@@ -30,7 +30,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   requests: ^4.7.0
+  intl: ^0.17.0
   mongo_dart: ^0.7.4
   shelf: ^1.2.0
   shelf_hotreload: ^1.1.0
